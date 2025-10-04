@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minuteur de Classe</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: transparent;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .timer-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            max-width: 380px;
+            width: 100%;
+            color: white;
+        }
+
+        .timer-title {
+            font-size: 1.8rem;
+            color: white;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .timer-display {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: white;
+            margin: 25px 0;
+            font-family: 'Courier New', monospace;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .timer-display.warning {
+            color: #ffeb3b;
+            animation: pulse 1s infinite;
+            background: rgba(255, 235, 59, 0.2);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+
+        .time-input {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .time-input > div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .time-input input {
+            width: 50px;
+            padding: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        .time-input input:focus {
+            outline: none;
+            border-color: #ffeb3b;
+            background: white;
+        }
+
+        .time-input label {
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+
+        .btn-start {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-start:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .btn-pause {
+            background: #ff9800;
+            color: white;
+        }
+
+        .btn-pause:hover {
+            background: #e68900;
+            transform: translateY(-2px);
+        }
+
+        .btn-reset {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #da190b;
+            transform: translateY(-2px);
+        }
+
+        .preset-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn-preset {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 6px 14px;
+            font-size: 0.85rem;
+        }
+
+        .btn-preset:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .status {
+            margin-top: 15px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .status.running {
+            color: #c8e6c9;
+        }
+
+        .status.paused {
+            color: #ffcc80;
+        }
+
+        .status.finished {
+            color: #ffeb3b;
+            animation: pulse 1s infinite;
+        }
+
+        @media (max-width: 480px) {
+            .timer-container {
+                padding: 20px;
+            }
+            
+            .timer-display {
+                font-size: 2.8rem;
+                padding: 15px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 100%;
+                max-width: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="timer-container">
+        <h1 class="timer-title">⏰ Minuteur de Classe</h1>
+        
+        <div class="preset-buttons">
+            <button class="btn-preset" onclick="setPreset(5)">5 min</button>
+            <button class="btn-preset" onclick="setPreset(10)">10 min</button>
+            <button class="btn-preset" onclick="setPreset(15)">15 min</button>
+            <button class="btn-preset" onclick="setPreset(30)">30 min</button>
+        </div>
+
+        <div class="time-input">
+            <div>
+                <input type="number" id="minutes" min="0" max="59" value="5">
+                <label for="minutes">min</label>
+            </div>
+            <div>
+                <input type="number" id="seconds" min="0" max="59" value="0">
+                <label for="seconds">sec</label>
+            </div>
+        </div>
+
+        <div class="timer-display" id="display">05:00</div>
+
+        <div class="controls">
+            <button class="btn-start" id="startBtn" onclick="startTimer()">Démarrer</button>
+            <button class="btn-pause" id="pauseBtn" onclick="pauseTimer()" style="display: none;">Pause</button>
+            <button class="btn-reset" onclick="resetTimer()">Reset</button>
+        </div>
+
+        <div class="status" id="status">Prêt à démarrer</div>
+    </div>
+
+    <script>
+        let timerInterval;
+        let totalSeconds = 300; // 5 minutes par défaut
+        let remainingSeconds = totalSeconds;
+        let isRunning = false;
+        let isPaused = false;
+
+        function updateDisplay() {
+            const minutes = Math.floor(remainingSeconds / 60);
+            const seconds = remainingSeconds % 60;
+            const display = document.getElementById('display');
+            display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Ajouter l'effet d'alerte quand il reste moins de 30 secondes
+            if (remainingSeconds <= 30 && remainingSeconds > 0) {
+                display.classList.add('warning');
+            } else {
+                display.classList.remove('warning');
+            }
+        }
+
+        function setPreset(minutes) {
+            if (!isRunning) {
+                document.getElementById('minutes').value = minutes;
+                document.getElementById('seconds').value = 0;
+                updateTimer();
+            }
+        }
+
+        function updateTimer() {
+            const minutes = parseInt(document.getElementById('minutes').value) || 0;
+            const seconds = parseInt(document.getElementById('seconds').value) || 0;
+            totalSeconds = minutes * 60 + seconds;
+            remainingSeconds = totalSeconds;
+            updateDisplay();
+            updateStatus('Prêt à démarrer');
+        }
+
+        function startTimer() {
+            if (!isRunning && !isPaused) {
+                updateTimer();
+            }
+            
+            if (remainingSeconds <= 0) {
+                updateTimer();
+                if (remainingSeconds <= 0) return;
+            }
+
+            isRunning = true;
+            isPaused = false;
+            
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('pauseBtn').style.display = 'inline-block';
+            
+            updateStatus('En cours...', 'running');
+
+            timerInterval = setInterval(() => {
+                remainingSeconds--;
+                updateDisplay();
+
+                if (remainingSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    isRunning = false;
+                    document.getElementById('startBtn').style.display = 'inline-block';
+                    document.getElementById('pauseBtn').style.display = 'none';
+                    updateStatus('Temps écoulé ! ⏰', 'finished');
+                    
+                    // Effet visuel de fin
+                    document.getElementById('display').style.color = '#ffeb3b';
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            if (isRunning) {
+                clearInterval(timerInterval);
+                isRunning = false;
+                isPaused = true;
+                
+                document.getElementById('startBtn').style.display = 'inline-block';
+                document.getElementById('startBtn').textContent = 'Reprendre';
+                document.getElementById('pauseBtn').style.display = 'none';
+                
+                updateStatus('En pause', 'paused');
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            isPaused = false;
+            
+            document.getElementById('startBtn').style.display = 'inline-block';
+            document.getElementById('startBtn').textContent = 'Démarrer';
+            document.getElementById('pauseBtn').style.display = 'none';
+            document.getElementById('display').style.color = 'white';
+            
+            updateTimer();
+        }
+
+        function updateStatus(message, className = '') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = 'status ' + className;
+        }
+
+        // Mise à jour automatique quand on change les valeurs
+        document.getElementById('minutes').addEventListener('input', updateTimer);
+        document.getElementById('seconds').addEventListener('input', updateTimer);
+
+        // Initialisation
+        updateDisplay();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98948de4d1f0541c',t:'MTc1OTU3OTU5OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
